@@ -23,20 +23,19 @@
  * ha compiut un passo.
  * Se la testa raggiunge l'ultima cella occupata non è stata trovata una
  * computazione di accettazione e quindi si rifiuta
- *
- * Dobbiamo controllare l'input per errori? Abbiamo visto che non dovremmo
- * Come sappiamo che l'input è finito? Cazzi nostri
- * L'input è piped o dobbiamo riceverlo in quealche altro modo? Abbiamo visto che sì
- * Quanti stati di accettazione ci sono? Infiniti
- * Lo stato di accettazione è sempre un pozzo? Confermato
- * Ci sono stati che puntano ad altri stati inesistenti? Abbiamo visto che sì
+ * Il nastro di input è memorizzato in un array che tiene conto di ogni nastro e di
+ * quanti nodi hanno un riferimento ad esso. In questo modo per ogni transizione 
+ * deterministica non c'è bisogno di duplicare il nastro ma semplicemente 
+ * riferirsi ad esso. Ogni nastro ha un suo contatore che quando scende a zero 
+ * indica che nessun nodo utilizza quel nastro e può essere liberato.
  *
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <useful.h>	// Defines a function reader() to read an arbitrarily long string from a stream
+#include <useful.h>	// Defines a function reader() to read an arbitrarily long string from a stream.
+					// It return 0 if the read was successful
 
 typedef struct taper taper;
 
@@ -118,14 +117,14 @@ int step(char *input, int header, int length, int state, int run) {
 
 	while (output != '1' && steps) {
 
-		/* Controlla se la coda si � svuotata */
-		if (stato == -2) {	// I nuovi nodi vuoti sono inizializzati col numero a -2, in questo modo se raggiungo uno stato -2 so che ho finito gli stati occupati
+		/* Check if the queue is empty */
+		if (stato == -2) {	// New nodes are initialized with number -2, this way if we get to a -2 we know there are no more nodes
 			if (output != 'U')
 				output = '0';
 			break;
 		}
 
-		/* Controlla se siamo in uno stato di accettazione */
+		/* Check if we're in an acceptance state */
 		for (i = 0; i < acc_max; i++) {
 			if (stato == acceptance_state[i]) {
 				output = '1';
@@ -135,24 +134,23 @@ int step(char *input, int header, int length, int state, int run) {
 		if (output == '1')
 			break;
 
-		/* Controlla se siamo in un autoanello */
+		/* Check if we are in a loop */
 		if (stato == -1) {
 			output = 'U';
 
-			/* Controlla se siamo nell'ultimo stato del livello */
+			/* Check if we are in the last state of the level */
 			if (examining == level) {
 				steps--;
 				level = last;
 			}
 
-			/* Controlla se la coda si � svuotata */
+			/* Check if the queue is empty */
 			if (examining == last)
 				break;
 
-			/* Spostati nel prossimo stato */
+			/* Move to the next state */
 			tmp = examining;
 			examining = examining->next;
-			//free(tmp->tape);
 			if (tmp->mine->count-- == 0) {
 				free(tmp->mine->tape);
 				free(tmp->mine);
@@ -167,25 +165,24 @@ int step(char *input, int header, int length, int state, int run) {
 		if (examining == last)
 			break;
 
-		/* Controlla se lo stato esiste ed ha transizioni */
+		/* Check if the state exists and has available transitions */
 		if (stato >= max_states || states[stato][0][0] == 0) {
 			if (output != 'U')
 				output = '0';
 
-			/* Controlla se siamo nell'ultimo stato del livello */
+			/* Check if we're in the last node of the level */
 			if (examining == level) {
 				steps--;
 				level = last;
 			}
 
-			/* Controlla se la coda si � svuotata */
+			/* Check if the queue is empty */
 			if (examining == last)
 				break;
 
-			/* Spostati nel prossimo stato */
+			/* Move to the next state */
 			tmp = examining;
 			examining = examining->next;
-			//free(tmp->tape);
 			if (tmp->mine->count-- == 0) {
 				free(tmp->mine->tape);
 				free(tmp->mine);
@@ -200,27 +197,26 @@ int step(char *input, int header, int length, int state, int run) {
 		if (examining == last)
 			break;
 
-		/* Cerca la read nello stato */
+		/* Search for the read in the state */
 		for (i = 0; states[stato][i][0] != examining->mine->tape[testina] && states[stato][i][0] != 0; i++)
 			;
 		if (states[stato][i][0] == 0) {
 			if (output != 'U')
 				output = '0';
 
-			/* Controlla se siamo nell'ultimo stato del livello */
+			/* Check if we're in the last node of the level */
 			if (examining == level) {
 				steps--;
 				level = last;
 			}
 
-			/* Controlla se la coda si � svuotata */
+			/* Check if the queue is empty */
 			if (examining == last)
 				break;
 
-			/* Spostati nel prossimo stato */
+			/* Move to the next state */
 			tmp = examining;
 			examining = examining->next;
-			//free(tmp->tape);
 			if (tmp->mine->count-- == 0) {
 				free(tmp->mine->tape);
 				free(tmp->mine);
@@ -235,10 +231,10 @@ int step(char *input, int header, int length, int state, int run) {
 		if (examining == last)
 			break;
 
-		/* Per ogni transizione dello stato accodo una nuova struct */
+		/* For every transition of the state enqueue a new node/struct */
 		for (j = 1; states[stato][i][j]; j += 3) {
 
-			/* Alloca, copia e modifica il nastro */
+			/* Allocate, copy and modify teh tape */
 			if (states[stato][i][4] == 0) {
 				last->mine = examining->mine;
 				last->mine->count++;
@@ -258,38 +254,37 @@ int step(char *input, int header, int length, int state, int run) {
 			last->mine->tape[testina] = states[stato][i][j];
 			last->input_len = lunghezza;
 
-			/* Sposta la testina */
+			/* Move the head */
 			last->head = (testina + states[stato][i][j + 1]);
 			if (last->head < 0 || last->head >= last->input_len)
 				widen(&(last->mine->tape), &(last->head), &(last->input_len));
 
-			/* Segna il nuovo stato */
+			/* Give the new state its number */
 			last->state = states[stato][i][j + 2];
 
-			/* Alloca un nuovo nodo */
+			/* Allocate a new node */
 			last->next = malloc(sizeof(config));
 			last = last->next;
 			last->state = -2;
 			last->next = NULL;
 		}
 
-		/* Controlla se siamo nell'ultimo stato del livello */
+		/* Check if we're in the last node of the level */
 		if (examining->next == level) {
 			steps--;
 			level = last;
 		}
 
-		/* Controlla se la coda si � svuotata */
+		/* Check if the queue is empty */
 		if (examining == last) {
 			if (output != 'U')
 				output = '0';
 			break;
 		}
 
-		/* Spostati nel prossimo stato */
+		/* Move to the next node */
 		tmp = examining;
 		examining = examining->next;
-		//free(tmp->tape);
 		if (tmp->mine->count-- == 0) {
 			free(tmp->mine->tape);
 			free(tmp->mine);
@@ -302,7 +297,7 @@ int step(char *input, int header, int length, int state, int run) {
 	if (!steps)
 		output = 'U';
 
-	/* Libera la pila rimanente */
+	/* Free the remaining queue */
 	while (examining != last) {
 		tmp = examining;
 		examining = examining->next;
@@ -312,6 +307,7 @@ int step(char *input, int header, int length, int state, int run) {
 		}
 		free(tmp);
 	}
+	/* Free strings */
 	free(stringhe);
 
 	return EXIT_SUCCESS;
@@ -362,9 +358,6 @@ int initializer(void) {
 			return EXIT_FAILURE;
 		}
 		free(input);
-
-		/* Check if there's a state pointing to himself */
-		//		if (init_state == end_state && read == write && move == 'S') end_state = -1;
 
 		/* If a state with the same number does not exists, create it */
 		while (init_state >= max_states) {
@@ -492,8 +485,7 @@ int initializer(void) {
 	}
 	free(input);
 
-	/* acc_len is the last recorded acceptance state, it's the length of the array
-   */
+	/* acc_len is the last recorded acceptance state, it's the length of the array */
 	acc_max = len;
 
 	/* Read in max runs */
@@ -542,8 +534,6 @@ int main(void) {
 	}
 
 	quicker();
-
-	//print_states();
 
 	while (1) {
 		while ((code = reader(stdin, &input, 16))) {
