@@ -1,11 +1,11 @@
 # Universal-Turing-Machine
-C implementation of a single tape universal turing machine <br />
-Implementazione in C di una macchina di Turing universale a nastro singolo
+C implementation of a single tape universal turing machine\
+Implementazione in C di una macchina di Turing universale a nastro singolo\
 
 ## Input
-Input via stdin
-
-`tr
+Input via stdin\
+```
+tr
 [state_number read_char write_char head_move next_state]
 ...
 acc
@@ -16,4 +16,4 @@ max
 run
 [input strings]
 ...
-`
+```
