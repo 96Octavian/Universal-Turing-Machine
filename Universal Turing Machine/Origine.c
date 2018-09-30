@@ -112,6 +112,7 @@ int step(char *input, int header, int length, int state, int run) {
 	examining = calloc(1, sizeof(config));
 	examining->next = malloc(sizeof(config));
 	last = examining->next;
+	last->state = -2;
 	level = examining;
 	examining->mine = stringhe[0];
 
@@ -301,16 +302,13 @@ int step(char *input, int header, int length, int state, int run) {
 	while (examining != last) {
 		tmp = examining;
 		examining = examining->next;
-		/*if (tmp->mine->count-- == 0) {
+		if (tmp->mine->count-- == 0) {
 			free(tmp->mine->tape);
 			free(tmp->mine);
-		}*/
+		}
 		free(tmp);
 	}
 	/* Free strings */
-	for (i = 0; i < upper; i++) {
-		if (stringhe[i]) free(stringhe[i]);
-	}
 	free(stringhe);
 
 	return EXIT_SUCCESS;
