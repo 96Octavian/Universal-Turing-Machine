@@ -234,7 +234,7 @@ int step(char *input, int header, int length, int state, int run) {
 		/* For every transition of the state enqueue a new node/struct */
 		for (j = 1; states[stato][i][j]; j += 3) {
 
-			/* Allocate, copy and modify teh tape */
+			/* Allocate, copy and modify the tape */
 			if (states[stato][i][4] == 0) {
 				last->mine = examining->mine;
 				last->mine->count++;
@@ -301,13 +301,16 @@ int step(char *input, int header, int length, int state, int run) {
 	while (examining != last) {
 		tmp = examining;
 		examining = examining->next;
-		if (tmp->mine->count-- == 0) {
+		/*if (tmp->mine->count-- == 0) {
 			free(tmp->mine->tape);
 			free(tmp->mine);
-		}
+		}*/
 		free(tmp);
 	}
 	/* Free strings */
+	for (i = 0; i < upper; i++) {
+		if (stringhe[i]) free(stringhe[i]);
+	}
 	free(stringhe);
 
 	return EXIT_SUCCESS;
