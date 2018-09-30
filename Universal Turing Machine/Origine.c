@@ -24,9 +24,9 @@
  * Se la testa raggiunge l'ultima cella occupata non è stata trovata una
  * computazione di accettazione e quindi si rifiuta
  * Il nastro di input è memorizzato in un array che tiene conto di ogni nastro e di
- * quanti nodi hanno un riferimento ad esso. In questo modo per ogni transizione 
- * deterministica non c'è bisogno di duplicare il nastro ma semplicemente 
- * riferirsi ad esso. Ogni nastro ha un suo contatore che quando scende a zero 
+ * quanti nodi hanno un riferimento ad esso. In questo modo per ogni transizione
+ * deterministica non c'è bisogno di duplicare il nastro ma semplicemente
+ * riferirsi ad esso. Ogni nastro ha un suo contatore che quando scende a zero
  * indica che nessun nodo utilizza quel nastro e può essere liberato.
  *
  */
@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <useful.h>	// Defines a function reader() to read an arbitrarily long string from a stream.
-					// It return 0 if the read was successful
+ // It return 0 if the read was successful
 
 typedef struct taper taper;
 
