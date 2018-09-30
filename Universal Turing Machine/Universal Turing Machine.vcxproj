@@ -132,6 +132,7 @@
     <Text Include="build\output_mindyourleft.txt" />
     <Text Include="build\output_tocornottoc.txt" />
     <Text Include="build\output_unionstuck.txt" />
+    <Text Include="stats\valgrind-out.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="compile.sh" />
