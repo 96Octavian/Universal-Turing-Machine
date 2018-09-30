@@ -119,6 +119,24 @@
   <ItemGroup>
     <ClCompile Include="Origine.c" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="build\input_dontgetlost.txt" />
+    <Text Include="build\input_fancyloops.txt" />
+    <Text Include="build\input_increasingstuff.txt" />
+    <Text Include="build\input_mindyourleft.txt" />
+    <Text Include="build\input_tocornottoc.txt" />
+    <Text Include="build\input_unionstuck.txt" />
+    <Text Include="build\output_dontgetlost.txt" />
+    <Text Include="build\output_fancyloops.txt" />
+    <Text Include="build\output_increasingstuff.txt" />
+    <Text Include="build\output_mindyourleft.txt" />
+    <Text Include="build\output_tocornottoc.txt" />
+    <Text Include="build\output_unionstuck.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="compile.sh" />
+    <None Include="run_mem.sh" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

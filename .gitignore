@@ -261,6 +261,3 @@ __pycache__/
 *.pyc
 
 # Personal ignores
-*.sh
-build/
-stats/
