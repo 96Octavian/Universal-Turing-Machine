@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <useful.h>	// Defines a function reader() to read an arbitrarily long string from a stream.
+#include "/home/octavian/useful/useful.h"	// Defines a function reader() to read an arbitrarily long string from a stream.
  // It return 0 if the read was successful
 
 typedef struct taper taper;
@@ -308,7 +308,10 @@ int step(char *input, int header, int length, int state, int run) {
 		}
 		free(tmp);
 	}
+	free(last);
 	/* Free strings */
+	free(stringhe[0]->tape);
+	free(stringhe[0]);
 	free(stringhe);
 
 	return EXIT_SUCCESS;
