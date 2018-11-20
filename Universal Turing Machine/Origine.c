@@ -34,8 +34,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "/home/octavian/useful/useful.h"	// Defines a function reader() to read an arbitrarily long string from a stream.
+//#include "/home/octavian/useful/useful.h"	// Defines a function reader() to read an arbitrarily long string from a stream.
  // It return 0 if the read was successful
+
+#pragma warning(disable:4996)
 
 typedef struct taper taper;
 
@@ -57,6 +59,64 @@ struct config {
 int ***states;
 char *input, output;
 int *acceptance_state, acc_max, testina, input_len, max_runs, max_states;
+
+char* chunked_fgets(FILE *istream, char** s, int chunk_size) {
+	char* buf = NULL;
+	size_t size = 0;
+	size_t used = 0;
+	size_t length;
+	do {
+		size += chunk_size;
+		char *buf_new = realloc(buf, size);
+		if (buf_new == NULL) {
+			// Out-of-memory
+			free(buf);
+			//			free(buf_new);
+			return NULL;
+		}
+		buf = buf_new;
+		if (fgets(&buf[used], (int)(size - used), istream) == NULL) {
+			// feof or ferror
+			if (used == 0 || ferror(istream)) {
+				free(buf);
+				buf = NULL;
+			}
+			return buf;
+		}
+		length = strlen(&buf[used]);
+		if (length + 1 != size - used) break;
+		used += length;
+	} while (buf[used - 1] != '\n');
+	int i = 0;
+	while (buf[i] != '\n') {
+		i++;
+	}
+	buf[i] = '\0';
+	*s = buf;
+	return *s;
+}
+
+/* Reads an arbitrarily long string from istream and store it in s. 0 means success */
+int reader(FILE *istream, char** s, int chunk_size) {
+	if (!chunked_fgets(istream, s, chunk_size)) {
+		if (ferror(istream)) {
+			//Input error
+			clearerr(istream);
+			return 1;
+		}
+		else if (feof(istream)) {
+			//End of file
+			clearerr(istream);
+			return 2;
+		}
+		else {
+			//Out of memory
+			clearerr(istream);
+			return 3;
+		}
+	}
+	return 0;
+}
 
 /* Accepts the current header position and enlarges the input string with blanks */
 int widen(char **new_input, int *testina, int *input_len) {
@@ -346,6 +406,7 @@ int initializer(void) {
 	states[0][0] = calloc(4, sizeof(int));
 	if (!states[0][0]) {
 		fprintf(stderr, "Could not allocate first column\n");
+		return EXIT_FAILURE;
 	}
 
 	/* Discard "tr" */
