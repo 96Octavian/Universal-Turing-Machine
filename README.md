@@ -2,6 +2,9 @@
 C implementation of a single tape non deterministic universal turing machine\
 Implementazione in C di una macchina di Turing universale non deterministica a nastro singolo
 
+## Execution
+Execute with ```./UTM < input_file.txt```
+
 ## Input
 Input via stdin
 ```
